@@ -1,0 +1,89 @@
+name: HSLinkPro Pipeline
+
+on:
+  push:
+    paths:
+      - '.github/workflows/bl616dk-build.yml'
+      - 'projects/bl616/**'
+    tags:
+      - 'BL616*'
+  pull_request:
+    paths:
+      - '.github/workflows/bl616dk-build.yml'
+      - 'projects/bl616/**'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: gregdavill/setup-riscv-gnu-toolchain@v2.0
+
+      - name: Install bouffalo SDK
+        run: |
+          cd ~
+          git clone https://github.com/bouffalolab/bouffalo_sdk.git --recursive
+
+      - name: Create Python Venv
+        run: |
+          python3 -m venv ~/BL616_PYTHON
+          source ~/BL616_PYTHON/bin/activate
+          pip install pyyaml jinja2
+
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Build APP
+        run: |
+          cd projects/bl616
+          export BL_SDK_BASE=~/bouffalo_sdk
+          export GNURISCV_TOOLCHAIN_PATH=/home/runner/work/_temp/.setup-riscv-gnu-toolchain
+          export CROSS_COMPILE=gcc
+          export PYTHON_EXECUTABLE=~/BL616_PYTHON/bin/python3
+
+          make BL_SDK_BASE CROSS_COMPILE
+
+      - run: |
+          mkdir -p releases
+          cd releases
+          cp ../projects/bl616/build/output/bl616dk.uf2 bl616.uf2
+          cp ../projects/bl616/build/output/bl616dk.bin bl616dk.bin
+      
+      - name: Upload file
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: |
+            releases/bl616.uf2
+            releases/bl616dk.bin
+      
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download release
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: releases
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'releases/*'
+          # tag: ${{ github.ref }}
+          allowUpdates: true
+          generateReleaseNotes: true
