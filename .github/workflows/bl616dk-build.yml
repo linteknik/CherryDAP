@@ -49,7 +49,7 @@ jobs:
           # export CROSS_COMPILE=gcc
           export PYTHON_EXECUTABLE=~/BL616_PYTHON/bin/python3
 
-          make BL_SDK_BASE=~/bouffalo_sdk CROSS_COMPILE=/home/runner/work/_temp/.setup-riscv-gnu-toolchain
+          make BL_SDK_BASE=~/bouffalo_sdk CROSS_COMPILE=/home/runner/work/_temp/.setup-riscv-gnu-toolchain/toolchain_gcc_t-head_linux/bin/riscv64-unknown-elf-
 
       - run: |
           mkdir -p releases
