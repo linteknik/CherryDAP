@@ -49,7 +49,7 @@ jobs:
           export CROSS_COMPILE=gcc
           export PYTHON_EXECUTABLE=~/BL616_PYTHON/bin/python3
 
-          make BL_SDK_BASE=~/bouffalo_sdk CROSS_COMPILE=gcc
+          make BL_SDK_BASE=~/bouffalo_sdk
 
       - run: |
           mkdir -p releases
