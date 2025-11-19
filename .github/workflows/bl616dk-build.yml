@@ -46,10 +46,10 @@ jobs:
           cd projects/bl616
           export BL_SDK_BASE=~/bouffalo_sdk
           export GNURISCV_TOOLCHAIN_PATH=/home/runner/work/_temp/.setup-riscv-gnu-toolchain
-          export CROSS_COMPILE=gcc
+          # export CROSS_COMPILE=gcc
           export PYTHON_EXECUTABLE=~/BL616_PYTHON/bin/python3
 
-          make BL_SDK_BASE=~/bouffalo_sdk
+          make BL_SDK_BASE=~/bouffalo_sdk CROSS_COMPILE=/home/runner/work/_temp/.setup-riscv-gnu-toolchain
 
       - run: |
           mkdir -p releases
